@@ -42,6 +42,18 @@ bool consume(char *op)
   return true;
 }
 
+/*
+ * if op is ident, return pointer
+ */
+Token *consume_ident()
+{
+  if (token -> kind != TK_IDENT)
+    return NULL;
+  Token *ident_token = token;
+  token = token -> next;
+  return ident_token;
+}
+
 void expect(char *op)
 {
   if (token -> kind != TK_RESERVED
@@ -120,6 +132,13 @@ Token *tokenize()
       continue;
     }
 
+    // alphabet
+    if ('a' <= *p && *p <= 'z') {
+      cur = new_token(TK_IDENT, cur, p++, 1);
+      cur -> len = 1;
+      continue;
+    }
+
     if (isdigit(*p)) {
       cur        = new_token(TK_NUM, cur, p, 0);
       char *q = p;
@@ -136,13 +155,45 @@ Token *tokenize()
 }
 
 // the head of the definition of the EBNF
+Node *code[100];
 
 /*
- * expr = equality
+ * program    = stmt*
+ */
+void program()
+{
+  int i = 0;
+  while (!at_eof())
+    code[i++] = stmt();
+  code[i] = NULL;
+}
+/*
+ * stmt = expr ";"
+ */
+Node *stmt()
+{
+  Node *node = expr();
+  expect(";");
+  return node;
+}
+
+/*
+ * expr = assign
  */
 Node *expr()
 {
-  return equality();
+  return assign();
+}
+
+/*
+ * assign = equality ("=" assign)?
+ */
+Node *assign()
+{
+  Node *node = equality();
+  if (consume("="))
+    node = new_node_operation(ND_ASSIGN, node, assign());
+  return node;
 }
 
 /*
@@ -230,7 +281,7 @@ Node *unary()
 }
 
 /*
- * primary = num | "(" expr ")"
+ * primary = num | ident | "(" expr ")"
  */ 
 Node *primary()
 {
@@ -238,6 +289,15 @@ Node *primary()
   if (consume("(")) {
     Node *node = expr();
     expect(")");
+    return node;
+  }
+
+  // expect ident
+  Token *tok = consume_ident();
+  if (tok) {
+    Node *node     = calloc(1, sizeof(Node));
+    node -> kind   = ND_LVAL;
+    node -> offset = (tok -> str[0] - 'a' + 1) * 8;
     return node;
   }
 

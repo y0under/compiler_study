@@ -16,6 +16,7 @@ struct Node
   Node *lhs;     // left-hand side
   Node *rhs;     // right-hand size
   int val;       // only kind type is ND_NUM
+  int offset;    // only kind type is ND_LVAL 
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "error.h"
 #include "enum.h"
 
 /*
@@ -22,7 +23,9 @@ typedef struct Token Token;
 // function
 Node *new_node_operation(NodeKind, Node*, Node *);
 Node *new_node_number(int);
+Node *stmt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relational();
 Node *add();
@@ -31,6 +34,8 @@ Node *unary();
 Node *primary();
 Token *new_token(TokenKind, Token *, char *, int);
 Token *tokenize();
+Token *consume_ident();
+void program();
 void error_at(char *, char *, ...);
 void expect(char *);
 void gen(Node *);
@@ -44,3 +49,4 @@ bool is_two_char_operation(char *);
 // value
 extern char *user_input;
 extern Token *token;
+extern Node *code[100];
