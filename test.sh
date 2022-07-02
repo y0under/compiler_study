@@ -16,6 +16,7 @@ assert() {
   fi
 }
 
-assert 21 20+5-4
+assert 27 a=20+5-4\;b=2*3\;a+b\;
+assert 5 2+3\;
 
 echo OK

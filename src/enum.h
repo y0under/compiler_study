@@ -3,7 +3,8 @@
 
 typedef enum
 {
-  TK_RESERVED, // either +, -, *, /, (, )
+  // either +, -, *, /, (, ), ;, =
+  TK_RESERVED,
   TK_IDENT,    // recognizer
   TK_NUM,      // number
   TK_EOF,      // end of input value
@@ -21,6 +22,7 @@ typedef enum
   ND_NE,     // !=
   ND_LT,     // <
   ND_LE,     // <=
+  ND_SEM,    // ;
   ND_NUM,    // number
 } NodeKind;
 

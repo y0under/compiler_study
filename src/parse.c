@@ -11,7 +11,7 @@ char *user_input;
  */
 Node *new_node_operation(NodeKind kind, Node *lhs, Node *rhs)
 {
-  Node *node = calloc(1, sizeof(Node));
+  Node *node   = calloc(1, sizeof(Node));
   node -> kind = kind;
   node -> lhs  = lhs;
   node -> rhs  = rhs;
@@ -97,7 +97,8 @@ bool is_tk_reserved(char *p)
   return *p == '+' || *p == '-'
     || *p == '*' || *p == '/'
     || *p == '(' || *p == ')'
-    || *p == '<' || *p == '>';
+    || *p == '<' || *p == '>'
+    || *p == ';' || *p == '=';
 }
 
 bool is_two_char_operation(char *p)
