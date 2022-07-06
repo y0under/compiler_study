@@ -6,6 +6,8 @@ Token *token;
 // input program
 char *user_input;
 
+LVal *local_val;
+
 /*
  * make node of operation
  */
@@ -95,10 +97,10 @@ bool start_swith(char *p, char *q)
 bool is_tk_reserved(char *p)
 {
   return *p == '+' || *p == '-'
-    || *p == '*' || *p == '/'
-    || *p == '(' || *p == ')'
-    || *p == '<' || *p == '>'
-    || *p == ';' || *p == '=';
+      || *p == '*' || *p == '/'
+      || *p == '(' || *p == ')'
+      || *p == '<' || *p == '>'
+      || *p == ';' || *p == '=';
 }
 
 bool is_two_char_operation(char *p)
@@ -107,6 +109,19 @@ bool is_two_char_operation(char *p)
     || start_swith(p, "!=")
     || start_swith(p, "<=")
     || start_swith(p, ">=");
+}
+
+bool is_alpha_or_underscore(char *p)
+{
+  return ('a' <= *p && *p <= 'z')
+    || ('A' <= *p && *p <= 'Z')
+    || '_' == *p;
+}
+
+bool is_alpha_or_under_or_num(char *p)
+{
+  return is_alpha_or_underscore(p)
+    || ('0' <= *p && '9' <= *p);
 }
 
 Token *tokenize()
@@ -133,9 +148,12 @@ Token *tokenize()
       continue;
     }
 
-    // alphabet
-    if ('a' <= *p && *p <= 'z') {
-      cur = new_token(TK_IDENT, cur, p++, 1);
+    // variable name
+    if (is_alpha_or_underscore(p)) {
+      int len = 1;
+      while (is_alpha_or_under_or_num(p + len))
+        ++len;
+      cur = new_token(TK_IDENT, cur, p++, len);
       cur -> len = 1;
       continue;
     }
@@ -280,6 +298,7 @@ Node *unary()
     return new_node_operation(ND_SUB, new_node_number(0), primary());
   return primary();
 }
+
 
 /*
  * primary = num | ident | "(" expr ")"

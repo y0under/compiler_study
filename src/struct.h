@@ -19,4 +19,12 @@ struct Node
   int offset;    // only kind type is ND_LVAL 
 };
 
+struct LVal
+{
+  LVal *next;
+  char *name;
+  int len;
+  int offset;
+};
+
 #endif

@@ -12,8 +12,9 @@
  */
 
 // struct
-typedef struct Node Node;
+typedef struct Node  Node;
 typedef struct Token Token;
+typedef struct LVal  LVal;
 
 #include "struct.h"
 
@@ -44,6 +45,8 @@ bool at_eof();
 bool start_swith(char *, char *);
 bool is_tk_reserved(char *);
 bool is_two_char_operation(char *);
+bool is_alpha_or_underscore(char *);
+bool is_alpha_or_under_or_num(char *);
 
 // value
 extern char *user_input;

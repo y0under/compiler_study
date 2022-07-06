@@ -3,7 +3,8 @@
 
 typedef enum
 {
-  // either +, -, *, /, (, ), ;, =
+  // TK_RESERVED: +, -, *, /, (, ), ;, =
+  //   ==, <=, !=, >=
   TK_RESERVED,
   TK_IDENT,    // recognizer
   TK_NUM,      // number
