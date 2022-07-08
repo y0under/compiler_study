@@ -34,6 +34,14 @@ void gen(Node *node)
       printf("  push rdi\n");
       return;
 
+    case ND_RETURN:
+      gen(node -> lhs);
+      printf("  pop rax\n");
+      printf("  mov rsp, rbp\n");
+      printf("  pop rbp\n");
+      printf("  ret\n");
+      return;
+
     default:
       break;
   }
@@ -41,6 +49,7 @@ void gen(Node *node)
   gen(node -> lhs);
   gen(node -> rhs);
 
+  // preparea for calculate
   printf("  pop rdi\n");
   printf("  pop rax\n");
 

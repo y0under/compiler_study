@@ -36,7 +36,8 @@ Node *new_node_number(int val)
  */
 bool consume(char *op)
 {
-  if (token -> kind != TK_RESERVED
+  if ((token -> kind != TK_RESERVED
+      && token -> kind != TK_RETURN)
       || strlen(op) != token -> len
       || memcmp(token -> str, op, token -> len))
     return false;
@@ -148,6 +149,15 @@ Token *tokenize()
       continue;
     }
 
+    // return
+    if (0 == strncmp(p, "return", 6)
+        && !is_alpha_or_under_or_num(p + 6)) {
+      cur = new_token(TK_RETURN, cur, p, 6);
+      p += 6;
+      cur -> len = 6;
+      continue;
+    }
+
     // variable name
     if (is_alpha_or_underscore(p)) {
       int len = 1;
@@ -188,12 +198,24 @@ void program()
   code[i] = NULL;
 }
 /*
- * stmt = expr ";"
+ * stmt = expr ";" | "return" expr ";"
  */
 Node *stmt()
 {
-  Node *node = expr();
-  expect(";");
+  Node *node;
+
+  if (consume("return")) {
+    node = calloc(1, sizeof(Node));
+    node -> kind = ND_RETURN;
+    node -> lhs = expr();
+  }
+  else {
+    node = expr();
+  }
+
+  if (!consume(";"))
+    error_at(token -> str, "not ';'");
+
   return node;
 }
 
