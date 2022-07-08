@@ -14,7 +14,7 @@
 // struct
 typedef struct Node  Node;
 typedef struct Token Token;
-typedef struct LVal  LVal;
+typedef struct LVar  LVar;
 
 #include "struct.h"
 
@@ -35,10 +35,12 @@ Node *primary();
 Token *new_token(TokenKind, Token *, char *, int);
 Token *tokenize();
 Token *consume_ident();
+LVar *find_lvar(Token *);
 void program();
 void error_at(char *, char *, ...);
 void expect(char *);
 void gen(Node *);
+void regist_lvar(const Token *const, LVar *);
 int expect_number();
 bool consume(char *);
 bool at_eof();

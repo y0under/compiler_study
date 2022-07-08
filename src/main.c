@@ -3,7 +3,7 @@
 int main(int argc, char **argv)
 {
   if (argc != 2) {
-    error_at(token -> str, "don't collect number of parameter");
+    fprintf(stderr, "%s\n", "don't collect number of parameter.");
     return 1;
   }
 

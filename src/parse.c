@@ -6,7 +6,7 @@ Token *token;
 // input program
 char *user_input;
 
-LVal *local_val;
+LVar *local_var;
 
 /*
  * make node of operation
@@ -115,13 +115,13 @@ bool is_alpha_or_underscore(char *p)
 {
   return ('a' <= *p && *p <= 'z')
     || ('A' <= *p && *p <= 'Z')
-    || '_' == *p;
+    || ('_' == *p);
 }
 
 bool is_alpha_or_under_or_num(char *p)
 {
   return is_alpha_or_underscore(p)
-    || ('0' <= *p && '9' <= *p);
+    || ('0' <= *p && *p <= '9');
 }
 
 Token *tokenize()
@@ -153,14 +153,15 @@ Token *tokenize()
       int len = 1;
       while (is_alpha_or_under_or_num(p + len))
         ++len;
-      cur = new_token(TK_IDENT, cur, p++, len);
-      cur -> len = 1;
+      cur = new_token(TK_IDENT, cur, p, len);
+      p += len;
+      cur -> len = len;
       continue;
     }
 
     if (isdigit(*p)) {
       cur        = new_token(TK_NUM, cur, p, 0);
-      char *q = p;
+      char *q    = p;
       cur -> val = strtol(p, &p, 10);
       cur -> len = p - q;
       continue;
@@ -299,6 +300,30 @@ Node *unary()
   return primary();
 }
 
+/*
+ * if tok is registed variable name, return variable ptr of the name.
+ * if tok is not registed, return NULL.
+ */
+LVar *find_lvar(Token *tok)
+{
+  for (LVar *var = local_var; var; var = var -> next)
+    if ((var -> len == tok -> len)
+        && !memcmp(tok -> str, var -> name, var -> len))
+      return var;
+  return NULL;
+}
+
+void regist_lvar(const Token *const tok, LVar *lvar)
+{
+  lvar = calloc(1, sizeof(LVar));
+
+  lvar -> next   = local_var;
+  lvar -> name   = tok -> str;
+  lvar -> len    = tok -> len;
+  lvar -> offset = (local_var) ? local_var -> offset + 8 : 0;
+
+  local_var = lvar;
+}
 
 /*
  * primary = num | ident | "(" expr ")"
@@ -315,9 +340,16 @@ Node *primary()
   // expect ident
   Token *tok = consume_ident();
   if (tok) {
-    Node *node     = calloc(1, sizeof(Node));
-    node -> kind   = ND_LVAL;
-    node -> offset = (tok -> str[0] - 'a' + 1) * 8;
+    Node *node   = calloc(1, sizeof(Node));
+    node -> kind = ND_LVAL;
+
+    LVar *lvar = find_lvar(tok);
+    if (lvar)
+      node -> offset = lvar -> offset;
+    else {
+      regist_lvar(tok, lvar);
+      node -> offset = local_var -> offset;
+    }
     return node;
   }
 

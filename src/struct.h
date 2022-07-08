@@ -19,12 +19,12 @@ struct Node
   int offset;    // only kind type is ND_LVAL 
 };
 
-struct LVal
+struct LVar
 {
-  LVal *next;
+  LVar *next;
   char *name;
   int len;
-  int offset;
+  int offset; // offset from RBP
 };
 
 #endif
