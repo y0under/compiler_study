@@ -10,6 +10,7 @@ LVar *local_var;
 
 const char *kreturn = "return";
 const char *kif     = "if";
+const char *kelse   = "else";
 const char *kwhile  = "while";
 const char *kfor    = "for";
 
@@ -44,7 +45,8 @@ bool consume(const char *op)
 {
   if ((token -> kind != TK_RESERVED
       && token -> kind != TK_RETURN
-      && token -> kind != TK_IF)
+      && token -> kind != TK_IF
+      && token -> kind != TK_ELSE)
       || strlen(op) != token -> len
       || memcmp(token -> str, op, token -> len))
     return false;
@@ -186,6 +188,17 @@ Token *tokenize()
       }
     }
 
+    // else
+    {
+      size_t key_length = strlen(kelse);
+      if (is_reserved_keyword(p, kelse, key_length)) {
+        cur = new_token(TK_ELSE, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+        continue;
+      }
+    }
+
     // variable name
     if (is_alpha_or_underscore(p)) {
       int len = 1;
@@ -253,6 +266,9 @@ Node *stmt()
     node -> condition  = expr();
     expect(")");
     node -> then = stmt();
+    if (consume(kelse)) {
+      node -> else_proc = stmt();
+    }
   }
   else {
     node = expr();

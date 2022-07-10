@@ -17,6 +17,7 @@ struct Node
   Node *rhs;       // right-hand size
   Node *condition; // if condition
   Node *then;      // if condition is true
+  Node *else_proc; // else processing
   int val;         // only kind type is ND_NUM
   int offset;      // only kind type is ND_LVAL 
 };

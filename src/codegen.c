@@ -54,6 +54,9 @@ void gen(Node *node)
       gen(node -> then);
       printf("  jmp .Lend%03d\n", counter);
       printf(".Lelse%03d:\n", counter);
+      if (node -> else_proc) {
+        gen(node -> else_proc);
+      }
       printf(".Lend%03d:\n", counter);
       return;
     }

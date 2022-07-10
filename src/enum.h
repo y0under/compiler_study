@@ -11,6 +11,7 @@ typedef enum
   TK_EOF,      // end of input value
   TK_RETURN,   // return statement
   TK_IF,       // if statement
+  TK_ELSE,     // else statement
   TK_WHILE,    // while statement
   TK_FOR,      // for statement
 } TokenKind;
@@ -31,6 +32,7 @@ typedef enum
   ND_NUM,    // number
   ND_RETURN,
   ND_IF,
+  ND_ELSE,
 } NodeKind;
 
 #endif

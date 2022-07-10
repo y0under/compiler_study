@@ -23,5 +23,7 @@ assert 7 "a = (20 + 1) / 3;"
 assert 7 "val = (20 + 1) / 3;"
 assert 5 "return 5;"
 assert 5 "if (1) 5;"
+assert 6 "if (1) 6; else 1;"
+assert 1 "if (0) 0; else 1;"
 
 echo OK
