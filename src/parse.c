@@ -188,7 +188,7 @@ Token *tokenize()
 Node *code[100];
 
 /*
- * program    = stmt*
+ * program = stmt*
  */
 void program()
 {
