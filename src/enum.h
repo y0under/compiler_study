@@ -33,6 +33,7 @@ typedef enum
   ND_RETURN,
   ND_IF,
   ND_ELSE,
+  ND_WHILE,
 } NodeKind;
 
 #endif

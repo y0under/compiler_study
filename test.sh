@@ -25,5 +25,6 @@ assert 5 "return 5;"
 assert 5 "if (1) 5;"
 assert 6 "if (1) 6; else 1;"
 assert 1 "if (0) 0; else 1;"
+assert 0 "a=5;while(a > 0) a=a-1; return a;"
 
 echo OK

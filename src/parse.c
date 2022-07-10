@@ -46,7 +46,8 @@ bool consume(const char *op)
   if ((token -> kind != TK_RESERVED
       && token -> kind != TK_RETURN
       && token -> kind != TK_IF
-      && token -> kind != TK_ELSE)
+      && token -> kind != TK_ELSE
+      && token -> kind != TK_WHILE)
       || strlen(op) != token -> len
       || memcmp(token -> str, op, token -> len))
     return false;
@@ -199,6 +200,17 @@ Token *tokenize()
       }
     }
 
+    // while
+    {
+      size_t key_length = strlen(kwhile);
+      if (is_reserved_keyword(p, kwhile, key_length)) {
+        cur = new_token(TK_WHILE, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+        continue;
+      }
+    }
+
     // variable name
     if (is_alpha_or_underscore(p)) {
       int len = 1;
@@ -262,13 +274,22 @@ Node *stmt()
   else if (consume(kif)) {
     expect("(");
     node = calloc(1, sizeof(Node));
-    node -> kind = ND_IF;
-    node -> condition  = expr();
+    node -> kind      = ND_IF;
+    node -> condition = expr();
     expect(")");
     node -> then = stmt();
     if (consume(kelse)) {
       node -> else_proc = stmt();
     }
+  }
+  // while statement
+  else if (consume(kwhile)) {
+    expect("(");
+    node = calloc(1, sizeof(Node));
+    node -> kind      = ND_WHILE;
+    node -> condition = expr();
+    expect(")");
+    node -> body = stmt();
   }
   else {
     node = expr();
