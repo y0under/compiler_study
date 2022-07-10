@@ -1,5 +1,12 @@
 #include "compiler.h"
 
+void print_token()
+{
+  for (int i = 0; token + i; ++i) {
+    printf("token: %s\n", (token + i) -> str);
+  }
+}
+
 int main(int argc, char **argv)
 {
   if (argc != 2) {
@@ -9,6 +16,7 @@ int main(int argc, char **argv)
 
   user_input = argv[1];
   token      = tokenize();
+  //print_token();
   program();
 
   // out put assembly

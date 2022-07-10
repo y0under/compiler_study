@@ -8,6 +8,12 @@ char *user_input;
 
 LVar *local_var;
 
+const char *kreturn = "return";
+const char *kif     = "if";
+const char *kwhile  = "while";
+const char *kfor    = "for";
+
+
 /*
  * make node of operation
  */
@@ -34,10 +40,11 @@ Node *new_node_number(int val)
 /*
  * what: determin if it is a reserved token
  */
-bool consume(char *op)
+bool consume(const char *op)
 {
   if ((token -> kind != TK_RESERVED
-      && token -> kind != TK_RETURN)
+      && token -> kind != TK_RETURN
+      && token -> kind != TK_IF)
       || strlen(op) != token -> len
       || memcmp(token -> str, op, token -> len))
     return false;
@@ -90,12 +97,33 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len)
   return tok;
 }
 
-bool start_swith(char *p, char *q)
+bool start_swith(const char *p, const char *q)
 {
   return memcmp(p, q, strlen(q)) == 0;
 }
 
-bool is_tk_reserved(char *p)
+bool is_alpha_or_underscore(const char *p)
+{
+  return ('a' <= *p && *p <= 'z')
+    || ('A' <= *p && *p <= 'Z')
+    || ('_' == *p);
+}
+
+bool is_alpha_or_under_or_num(const char *p)
+{
+  return is_alpha_or_underscore(p)
+    || ('0' <= *p && *p <= '9');
+}
+
+
+bool is_reserved_keyword(
+    const char *p, const char *keyword, const size_t key_length)
+{
+  return 0 == strncmp(p, keyword, key_length)
+    && !is_alpha_or_under_or_num(p + key_length);
+}
+
+bool is_tk_reserved(const char *p)
 {
   return *p == '+' || *p == '-'
       || *p == '*' || *p == '/'
@@ -104,25 +132,12 @@ bool is_tk_reserved(char *p)
       || *p == ';' || *p == '=';
 }
 
-bool is_two_char_operation(char *p)
+bool is_two_char_operation(const char *p)
 {
   return start_swith(p, "==")
     || start_swith(p, "!=")
     || start_swith(p, "<=")
     || start_swith(p, ">=");
-}
-
-bool is_alpha_or_underscore(char *p)
-{
-  return ('a' <= *p && *p <= 'z')
-    || ('A' <= *p && *p <= 'Z')
-    || ('_' == *p);
-}
-
-bool is_alpha_or_under_or_num(char *p)
-{
-  return is_alpha_or_underscore(p)
-    || ('0' <= *p && *p <= '9');
 }
 
 Token *tokenize()
@@ -150,12 +165,25 @@ Token *tokenize()
     }
 
     // return
-    if (0 == strncmp(p, "return", 6)
-        && !is_alpha_or_under_or_num(p + 6)) {
-      cur = new_token(TK_RETURN, cur, p, 6);
-      p += 6;
-      cur -> len = 6;
-      continue;
+    {
+      size_t key_length = strlen(kreturn);
+      if (is_reserved_keyword(p, kreturn, key_length)) {
+        cur = new_token(TK_RETURN, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+        continue;
+      }
+    }
+
+    // if
+    {
+      size_t key_length = strlen(kif);
+      if (is_reserved_keyword(p, kif, key_length)) {
+        cur = new_token(TK_IF, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+          continue;
+      }
     }
 
     // variable name
@@ -197,24 +225,40 @@ void program()
     code[i++] = stmt();
   code[i] = NULL;
 }
+
 /*
- * stmt = expr ";" | "return" expr ";"
+ * stmt = expr ";"
+ *      | "return" expr ";"
+ *      | "if" "(" expr ")" stmt ("else" stmt)?
+ *      | "while" "(" expr ")" stmt
+ *      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
  */
 Node *stmt()
 {
   Node *node;
 
-  if (consume("return")) {
+  // return statement
+  if (consume(kreturn)) {
     node = calloc(1, sizeof(Node));
     node -> kind = ND_RETURN;
     node -> lhs = expr();
+    if (!consume(";"))
+      error_at(token -> str, "not ';'");
+  }
+  // if statement
+  else if (consume(kif)) {
+    expect("(");
+    node = calloc(1, sizeof(Node));
+    node -> kind = ND_IF;
+    node -> condition  = expr();
+    expect(")");
+    node -> then = stmt();
   }
   else {
     node = expr();
+    if (!consume(";"))
+      error_at(token -> str, "not ';'");
   }
-
-  if (!consume(";"))
-    error_at(token -> str, "not ';'");
 
   return node;
 }
@@ -293,7 +337,7 @@ Node *add()
 }
 
 /*
- * mul     = unary ("*" unary | "/" unary)*
+ * mul = unary ("*" unary | "/" unary)*
  */
 Node *mul()
 {
@@ -310,7 +354,7 @@ Node *mul()
 }
 
 /*
- * unary   = ("+" | "-")? primary
+ * unary = ("+" | "-")? primary
  */
 Node *unary()
 {

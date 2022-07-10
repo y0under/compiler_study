@@ -9,7 +9,10 @@ typedef enum
   TK_IDENT,    // recognizer
   TK_NUM,      // number
   TK_EOF,      // end of input value
-  TK_RETURN,
+  TK_RETURN,   // return statement
+  TK_IF,       // if statement
+  TK_WHILE,    // while statement
+  TK_FOR,      // for statement
 } TokenKind;
 
 typedef enum
@@ -27,6 +30,7 @@ typedef enum
   ND_SEM,    // ;
   ND_NUM,    // number
   ND_RETURN,
+  ND_IF,
 } NodeKind;
 
 #endif

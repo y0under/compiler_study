@@ -1,5 +1,7 @@
 #include "compiler.h"
 
+int label_counter = 0;
+
 void gen_lval(Node *node )
 {
   if (node -> kind != ND_LVAL)
@@ -41,6 +43,20 @@ void gen(Node *node)
       printf("  pop rbp\n");
       printf("  ret\n");
       return;
+
+    case ND_IF: {
+      int counter = label_counter;
+      ++label_counter;
+      gen(node -> condition);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      printf("  je .Lelse%03d\n", counter);
+      gen(node -> then);
+      printf("  jmp .Lend%03d\n", counter);
+      printf(".Lelse%03d:\n", counter);
+      printf(".Lend%03d:\n", counter);
+      return;
+    }
 
     default:
       break;

@@ -12,11 +12,13 @@ struct Token
 
 struct Node
 {
-  NodeKind kind; // type of node
-  Node *lhs;     // left-hand side
-  Node *rhs;     // right-hand size
-  int val;       // only kind type is ND_NUM
-  int offset;    // only kind type is ND_LVAL 
+  NodeKind kind;   // type of node
+  Node *lhs;       // left-hand side
+  Node *rhs;       // right-hand size
+  Node *condition; // if condition
+  Node *then;      // if condition is true
+  int val;         // only kind type is ND_NUM
+  int offset;      // only kind type is ND_LVAL 
 };
 
 struct LVar

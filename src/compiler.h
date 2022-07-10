@@ -42,15 +42,16 @@ void expect(char *);
 void gen(Node *);
 void regist_lvar(const Token *const, LVar *);
 int expect_number();
-bool consume(char *);
+bool consume(const char *);
 bool at_eof();
-bool start_swith(char *, char *);
-bool is_tk_reserved(char *);
-bool is_two_char_operation(char *);
-bool is_alpha_or_underscore(char *);
-bool is_alpha_or_under_or_num(char *);
+bool start_swith(const char *, const char *);
+bool is_tk_reserved(const char *);
+bool is_two_char_operation(const char *);
+bool is_alpha_or_underscore(const char *);
+bool is_alpha_or_under_or_num(const char *);
 
 // value
 extern char *user_input;
+extern int label_counter;
 extern Token *token;
 extern Node *code[100];
