@@ -8,11 +8,13 @@ char *user_input;
 
 LVar *local_var;
 
-const char *kreturn = "return";
-const char *kif     = "if";
-const char *kelse   = "else";
-const char *kwhile  = "while";
-const char *kfor    = "for";
+const char *kreturn      = "return";
+const char *kif          = "if";
+const char *kelse        = "else";
+const char *kwhile       = "while";
+const char *kfor         = "for";
+const char *kbrace_left  = "{";
+const char *kbrace_right = "}";
 
 /*
  * make node of operation
@@ -132,7 +134,8 @@ bool is_tk_reserved(const char *p)
       || *p == '*' || *p == '/'
       || *p == '(' || *p == ')'
       || *p == '<' || *p == '>'
-      || *p == ';' || *p == '=';
+      || *p == ';' || *p == '='
+      || *p == '{' || *p == '}';
 }
 
 bool is_two_char_operation(const char *p)
