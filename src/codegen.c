@@ -69,7 +69,28 @@ void gen(Node *node)
       printf("  pop rax\n");
       printf("  cmp rax, 0\n");
       printf("  je .Lend%03d\n", counter);
-      gen(node -> body);
+      if (node -> body)
+        gen(node -> body);
+      printf("  jmp .Lbegin%03d\n", counter);
+      printf(".Lend%03d:\n", counter);
+      return;
+    }
+
+    case ND_FOR: {
+      int counter = label_counter;
+      ++label_counter;
+      if (node -> init)
+        gen(node -> init);
+      printf(".Lbegin%03d:\n", counter);
+      if (node -> condition)
+        gen(node -> condition);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      printf("  je .Lend%03d\n", counter);
+      if (node -> body)
+        gen(node -> body);
+      if (node -> change)
+        gen(node -> change);
       printf("  jmp .Lbegin%03d\n", counter);
       printf(".Lend%03d:\n", counter);
       return;

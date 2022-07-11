@@ -14,7 +14,6 @@ const char *kelse   = "else";
 const char *kwhile  = "while";
 const char *kfor    = "for";
 
-
 /*
  * make node of operation
  */
@@ -47,7 +46,8 @@ bool consume(const char *op)
       && token -> kind != TK_RETURN
       && token -> kind != TK_IF
       && token -> kind != TK_ELSE
-      && token -> kind != TK_WHILE)
+      && token -> kind != TK_WHILE
+      && token -> kind != TK_FOR)
       || strlen(op) != token -> len
       || memcmp(token -> str, op, token -> len))
     return false;
@@ -211,6 +211,17 @@ Token *tokenize()
       }
     }
 
+    // for
+    {
+      size_t key_length = strlen(kfor);
+      if (is_reserved_keyword(p, kfor, key_length)) {
+        cur = new_token(TK_FOR, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+        continue;
+      }
+    }
+
     // variable name
     if (is_alpha_or_underscore(p)) {
       int len = 1;
@@ -289,7 +300,28 @@ Node *stmt()
     node -> kind      = ND_WHILE;
     node -> condition = expr();
     expect(")");
-    node -> body = stmt();
+    if (!consume(";"))
+      node -> body = stmt();
+  }
+  // for statement
+  else if (consume(kfor)) {
+    expect("(");
+    node = calloc(1, sizeof(Node));
+    node -> kind = ND_FOR;
+    if (!consume(";")) {
+      node -> init = expr();
+      expect(";");
+    }
+    if (!consume(";")) {
+      node -> condition = expr();
+      expect(";");
+    }
+    if (!consume(")")) {
+      node -> change = expr();
+      expect(")");
+    }
+    if (!consume(";"))
+      node -> body = stmt();
   }
   else {
     node = expr();

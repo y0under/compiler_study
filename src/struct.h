@@ -15,10 +15,12 @@ struct Node
   NodeKind kind;   // type of node
   Node *lhs;       // left-hand side
   Node *rhs;       // right-hand size
-  Node *condition; // if condition
+  Node *condition; // if and for condition
   Node *then;      // if condition is true
   Node *else_proc; // else processing
   Node *body;      // body of while
+  Node *init;      // for init
+  Node *change;    // for change
   int val;         // only kind type is ND_NUM
   int offset;      // only kind type is ND_LVAL 
 };
