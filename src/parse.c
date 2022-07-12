@@ -276,8 +276,19 @@ Node *stmt()
 {
   Node *node;
 
+  // {
+  if (consume(kbrace_left)) {
+    if (!consume(kbrace_right)) {
+      Vector *stmts = new_vec();
+      node = calloc(1, sizeof(Node));
+      node -> kind = ND_BLOCK;
+      while (!consume("}"))
+        vec_push(stmts, stmt());
+      node -> stmts = stmts;
+    }
+  }
   // return statement
-  if (consume(kreturn)) {
+  else if (consume(kreturn)) {
     node = calloc(1, sizeof(Node));
     node -> kind = ND_RETURN;
     node -> lhs = expr();

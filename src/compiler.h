@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "enum.h"
+#include "vector.h"
 
 /*
  * prototype

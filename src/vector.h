@@ -1,43 +1,23 @@
 #ifndef COMPILER_SRC_VECTOR_H
 #define COMPILER_SRC_VECTOR_H
 
-typedef struct
+#include <assert.h>
+#include <stdlib.h>
+
+// prototype
+typedef struct Vector
 {
   void **data;
   int  capacity;
   int  len;
 } Vector;
 
-Vector *new_vec()
-{
-  const int kvec_init_size = 16;
-  Vector *v = malloc(sizeof(Vector));
 
-  v -> data     = malloc(sizeof(void *) * kvec_init_size);
-  v -> capacity = kvec_init_size;
-  v -> len      = 0;
-  return v;
-}
+// function
+extern Vector *new_vec();
+extern void vec_push(Vector *v, void *elem);
+extern void *vec_pop(Vector *v);
+extern void *vec_pop(Vector *v);
+extern void *vector_last(Vector *v);
 
-void vec_push(Vector *v, void *elem)
-{
-  if (v -> len == v -> capacity) {
-    v -> capacity *= 2;
-    v -> data = realloc(v -> data, sizeof(void *) * v -> capacity);
-  }
-  v -> data [v -> len++] = elem;
-}
-
-void *vec_pop(Vector *v)
-{
-  assert(v -> len);
-  return v -> data[--v -> len];
-}
-
-void *vector_last(Vector *v)
-{
-  assert(v -> len);
-  return v -> data[v -> len - 1];
-}
-
-#ifndef
+#endif

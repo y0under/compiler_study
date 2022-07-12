@@ -35,6 +35,7 @@ typedef enum
   ND_ELSE,
   ND_WHILE,
   ND_FOR,
+  ND_BLOCK,  // {}
 } NodeKind;
 
 #endif

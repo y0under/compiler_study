@@ -96,6 +96,13 @@ void gen(Node *node)
       return;
     }
 
+    case ND_BLOCK: {
+      for (int i = 0; i < node -> stmts -> len; ++i) {
+        gen(node -> stmts -> data[i]);
+      }
+      return;
+    }
+
     default:
       break;
   }

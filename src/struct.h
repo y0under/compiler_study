@@ -21,6 +21,7 @@ struct Node
   Node *body;      // body of while
   Node *init;      // for init
   Node *change;    // for change
+  Vector *stmts;   // statement for {} block
   int val;         // only kind type is ND_NUM
   int offset;      // only kind type is ND_LVAL 
 };

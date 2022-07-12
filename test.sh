@@ -27,5 +27,7 @@ assert 6 "if (1) 6; else 1;"
 assert 1 "if (0) 0; else 1;"
 assert 0 "a=5;while(a > 0) a=a-1; return a;"
 assert 0 "for(i = 5; 0 < i; i = i - 1); return i;"
+assert 3 "for(i = 5; 0 < i; i = i - 1) { if (i == 3) return i;}"
+assert 5 "for(i = 5; 0 < i; i = i - 1) { if (i == 3) {i = i + 2; return i;}}"
 
 echo OK
