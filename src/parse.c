@@ -135,7 +135,8 @@ bool is_tk_reserved(const char *p)
       || *p == '(' || *p == ')'
       || *p == '<' || *p == '>'
       || *p == ';' || *p == '='
-      || *p == '{' || *p == '}';
+      || *p == '{' || *p == '}'
+      || *p == ',';
 }
 
 bool is_two_char_operation(const char *p)
@@ -225,7 +226,7 @@ Token *tokenize()
       }
     }
 
-    // variable name
+    // variable name or function name
     if (is_alpha_or_underscore(p)) {
       int len = 1;
       while (is_alpha_or_under_or_num(p + len))
@@ -276,7 +277,7 @@ Node *stmt()
 {
   Node *node;
 
-  // {
+  // {}
   if (consume(kbrace_left)) {
     if (!consume(kbrace_right)) {
       Vector *stmts = new_vec();
@@ -339,8 +340,7 @@ Node *stmt()
   }
   else {
     node = expr();
-    if (!consume(";"))
-      error_at(token -> str, "not ';'");
+    expect(";");
   }
 
   return node;
@@ -486,9 +486,13 @@ Node *primary()
     return node;
   }
 
-  // expect ident
   Token *tok = consume_ident();
-  if (tok) {
+  // number
+  if (!tok)
+    return new_node_number(expect_number());
+
+  // variable
+  if (!consume("(")) {
     Node *node   = calloc(1, sizeof(Node));
     node -> kind = ND_LVAL;
 
@@ -502,8 +506,26 @@ Node *primary()
     return node;
   }
 
-  // expect number
-  return new_node_number(expect_number());
+  // function
+  {
+    Node *node   = calloc(1, sizeof(Node));
+    node -> kind = ND_FUNC;
+    node -> name = tok -> str;
+    node -> name[tok -> len] = '\0';
+    node -> args = new_vec();
+
+    while (!consume(")")) {
+      consume(",");
+      Node *arg = expr();
+      vec_push(node -> args, arg);
+      if (node -> args -> len > 6)
+        error_at(token -> str, "number of args for function exceed 6.");
+    }
+    return node;
+  }
+
+  error_at("error:", "failed primary");
+  return NULL; // dummy
 }
 
 // the end of the definition of the EBNF

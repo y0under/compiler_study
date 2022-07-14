@@ -2,6 +2,8 @@
 
 int label_counter = 0;
 
+char *register_name[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
 void gen_lval(Node *node )
 {
   if (node -> kind != ND_LVAL)
@@ -100,6 +102,18 @@ void gen(Node *node)
       for (int i = 0; i < node -> stmts -> len; ++i) {
         gen(node -> stmts -> data[i]);
       }
+      return;
+    }
+
+    case ND_FUNC: {
+      for (int i = node -> args -> len - 1; i > -1; --i) {
+        gen(node -> args -> data[i]);
+        printf("  pop rax\n");
+        printf("  mov %s, rax\n", register_name[i]);
+      }
+      printf("  mov al, 0\n");
+      printf("  call %s\n", node -> name);
+      printf("  push rax\n");
       return;
     }
 

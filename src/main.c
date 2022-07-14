@@ -2,8 +2,9 @@
 
 void print_token()
 {
-  for (int i = 0; token + i; ++i) {
-    printf("token: %s\n", (token + i) -> str);
+  for (int i = 0; (token+i) -> next; ++i) {
+    if (NULL != (token+i) -> str)
+      fprintf(stderr, "token: %s\n", (token + i) -> str);
   }
 }
 
@@ -16,7 +17,7 @@ int main(int argc, char **argv)
 
   user_input = argv[1];
   token      = tokenize();
-  //print_token();
+  // print_token();
   program();
 
   // out put assembly

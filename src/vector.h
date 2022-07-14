@@ -14,10 +14,10 @@ typedef struct Vector
 
 
 // function
-extern Vector *new_vec();
-extern void vec_push(Vector *v, void *elem);
-extern void *vec_pop(Vector *v);
-extern void *vec_pop(Vector *v);
-extern void *vector_last(Vector *v);
+Vector *new_vec();
+void vec_push(Vector *v, void *elem);
+void *vec_pop(Vector *v);
+void *vec_pop(Vector *v);
+void *vector_last(Vector *v);
 
 #endif

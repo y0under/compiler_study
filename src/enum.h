@@ -36,6 +36,7 @@ typedef enum
   ND_WHILE,
   ND_FOR,
   ND_BLOCK,  // {}
+  ND_FUNC,   // function call
 } NodeKind;
 
 #endif

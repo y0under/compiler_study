@@ -22,6 +22,8 @@ struct Node
   Node *init;      // for init
   Node *change;    // for change
   Vector *stmts;   // statement for {} block
+  Vector *args;    // for arguments of function
+  char *name;      // function name
   int val;         // only kind type is ND_NUM
   int offset;      // only kind type is ND_LVAL 
 };
