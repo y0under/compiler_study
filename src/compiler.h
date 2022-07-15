@@ -24,6 +24,7 @@ typedef struct LVar  LVar;
 // function
 Node *new_node_operation(NodeKind, Node*, Node *);
 Node *new_node_number(int);
+Node *func();
 Node *stmt();
 Node *expr();
 Node *assign();

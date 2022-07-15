@@ -35,8 +35,9 @@ typedef enum
   ND_ELSE,
   ND_WHILE,
   ND_FOR,
-  ND_BLOCK,  // {}
-  ND_FUNC,   // function call
+  ND_BLOCK,     // {}
+  ND_FUNC_CALL, // function call
+  ND_FUNC,      // definition of function
 } NodeKind;
 
 #endif

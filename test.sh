@@ -16,18 +16,23 @@ assert() {
   fi
 }
 
-assert 27 a=20+5-4\;b=2*3\;a+b\;
-assert 27 'a=20+5-4;b=2*3;a+b;'
-assert 5 "2+3;"
-assert 7 "a = (20 + 1) / 3;"
-assert 7 "val = (20 + 1) / 3;"
-assert 5 "return 5;"
-assert 5 "if (1) 5;"
-assert 6 "if (1) 6; else 1;"
-assert 1 "if (0) 0; else 1;"
-assert 0 "a=5;while(a > 0) a=a-1; return a;"
-assert 0 "for(i = 5; 0 < i; i = i - 1); return i;"
-assert 3 "for(i = 5; 0 < i; i = i - 1) { if (i == 3) return i;}"
-assert 5 "for(i = 5; 0 < i; i = i - 1) { if (i == 3) {i = i + 2; return i;}}"
+assert 0 "main(){return 0;}"
+assert 5 "main(){a = 2; b = 3; return a + b;}"
+#assert 27 a=20+5-4\;b=2*3\;a+b\;
+#assert 27 'a=20+5-4;b=2*3;a+b;'
+#assert 5 "2+3;"
+#assert 7 "a = (20 + 1) / 3;"
+#assert 7 "val = (20 + 1) / 3;"
+#assert 5 "return 5;"
+#assert 5 "if (1) 5;"
+#assert 6 "if (1) 6; else 1;"
+#assert 1 "if (0) 0; else 1;"
+#assert 0 "a=5;while(a > 0) a=a-1; return a;"
+#assert 0 "for(i = 5; 0 < i; i = i - 1); return i;"
+#assert 3 "for(i = 5; 0 < i; i = i - 1) { if (i == 3) return i;}"
+#assert 5 "for(i = 5; 0 < i; i = i - 1) { if (i == 3) {i = i + 2; return i;}}"
+#assert 0 "func(a, b); return 0;" # fail
+#assert 0 "func(a, b){a+b;}; return 0;"
+#assert 7 "func(){a = 5; b = 2; return a+b;};"
 
 echo OK

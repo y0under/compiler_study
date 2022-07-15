@@ -69,6 +69,11 @@ Token *consume_ident()
   return ident_token;
 }
 
+bool is_expect_token(char *expect_token)
+{
+  return !memcmp(token -> str, expect_token, token -> len);
+}
+
 void expect(char *op)
 {
   if (token -> kind != TK_RESERVED
@@ -256,14 +261,46 @@ Token *tokenize()
 Node *code[100];
 
 /*
- * program = stmt*
+ * program = func*
  */
 void program()
 {
   int i = 0;
-  while (!at_eof())
-    code[i++] = stmt();
+  while (!at_eof()){
+    code[i++] = func();
+  }
   code[i] = NULL;
+}
+
+/*
+ * func = ident "(" stmt* ")" "{" stmt* "}"
+ */
+Node *func()
+{
+  Token *tok = consume_ident();
+  if (!tok)
+    error_at(token -> str, "not identity");
+  // Function *func;
+  Node *node   = calloc(1, sizeof(Node));
+  node -> kind = ND_BLOCK;
+  node -> name = calloc((tok -> len) + 1, sizeof(char));
+  memcpy(node -> name, tok -> str, tok -> len);
+  node -> name[tok -> len] = '\0';
+  expect("(");
+  // Vector *params;
+  // while (!consume(")")) {
+  //   Node *param = primary();
+  //   vec_push(params, param);
+  // }
+  // node -> args = params;
+  expect(")");
+  expect("{");
+  Vector *stmts = new_vec();
+  while (!consume("}"))
+    vec_push(stmts, stmt());
+  node -> stmts = stmts;
+
+  return node;
 }
 
 /*
@@ -506,10 +543,10 @@ Node *primary()
     return node;
   }
 
-  // function
+  // call function
   {
     Node *node   = calloc(1, sizeof(Node));
-    node -> kind = ND_FUNC;
+    node -> kind = ND_FUNC_CALL;
     node -> name = tok -> str;
     node -> name[tok -> len] = '\0';
     node -> args = new_vec();

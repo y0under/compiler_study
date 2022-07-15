@@ -11,7 +11,7 @@ void print_token()
 int main(int argc, char **argv)
 {
   if (argc != 2) {
-    fprintf(stderr, "%s\n", "don't collect number of parameter.");
+    fprintf(stderr, "%s:%d\n", "don't collect number of parameter.", argc);
     return 1;
   }
 

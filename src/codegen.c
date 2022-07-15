@@ -105,7 +105,7 @@ void gen(Node *node)
       return;
     }
 
-    case ND_FUNC: {
+    case ND_FUNC_CALL: {
       for (int i = node -> args -> len - 1; i > -1; --i) {
         gen(node -> args -> data[i]);
         printf("  pop rax\n");
