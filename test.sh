@@ -18,6 +18,9 @@ assert() {
 
 assert 0 "main(){return 0;}"
 assert 5 "main(){a = 2; b = 3; return a + b;}"
+assert 3 "main(a, b){return 3;}"
+assert 5 "main(a, b){a=2;b=3; return a+b;}"
+#assert 3 "hoge(){return 3;} main(){return hoge();}"
 #assert 27 a=20+5-4\;b=2*3\;a+b\;
 #assert 27 'a=20+5-4;b=2*3;a+b;'
 #assert 5 "2+3;"

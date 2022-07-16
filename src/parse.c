@@ -287,13 +287,17 @@ Node *func()
   memcpy(node -> name, tok -> str, tok -> len);
   node -> name[tok -> len] = '\0';
   expect("(");
-  // Vector *params;
-  // while (!consume(")")) {
-  //   Node *param = primary();
-  //   vec_push(params, param);
-  // }
-  // node -> args = params;
-  expect(")");
+  Vector *params = new_vec();
+  node -> args = new_vec();
+  while (!consume(")")) {
+    consume(",");
+    Node *arg = expr();
+    vec_push(params, arg);
+    if (node -> args -> len > 6)
+      error_at(token -> str, "number of args for function exceed 6.");
+  }
+  node -> args = params;
+  // expect(")");
   expect("{");
   Vector *stmts = new_vec();
   while (!consume("}"))
