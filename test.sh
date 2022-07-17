@@ -17,9 +17,18 @@ assert() {
 }
 
 assert 0 "main(){return 0;}"
+assert 2 "main(){return 2;}"
 assert 5 "main(){a = 2; b = 3; return a + b;}"
 assert 3 "main(a, b){return 3;}"
 assert 5 "main(a, b){a=2;b=3; return a+b;}"
+assert 3 "main(a, b){return 3;}"
+assert 7 "main(){return hoge();} hoge(){return 7;}"
+assert 4 "main(){return hoge(4);} hoge(a){return a;}"
+assert 3 "main(){return huga(1, 2);} huga(a, b){return a + b;}"
+assert 6 "main(){return hoge(1, 2, 3);} hoge(a, b, c){return a + b + c;}"
+assert 4 "main(){return hoge(1, 2, 3);} hoge(a, b, c){return a + c;}"
+assert 1 "main(){return hoge(1, 2, 3);} hoge(a, b, c){return a;}"
+assert 55 "main(){return sum(10);} sum(n){if(n<0) return 0; return n + sum(n-1);}"
 #assert 3 "hoge(){return 3;} main(){return hoge();}"
 #assert 27 a=20+5-4\;b=2*3\;a+b\;
 #assert 27 'a=20+5-4;b=2*3;a+b;'

@@ -18,7 +18,7 @@ struct Node
   Node *condition; // if and for condition
   Node *then;      // if condition is true
   Node *else_proc; // else processing
-  Node *body;      // body of while
+  Node *body;      // body of while, for
   Node *init;      // for init
   Node *change;    // for change
   Vector *stmts;   // statement for {} block
@@ -34,6 +34,12 @@ struct LVar
   char *name;
   int len;
   int offset; // offset from RBP
+};
+
+struct Function
+{
+  char *name;
+  Node *node;
 };
 
 #endif

@@ -1,4 +1,12 @@
 #include "compiler.h"
+/*
+main(){
+  return hoge(1, 2);
+}
+hoge(a, b){
+  return a + b;
+}
+*/
 
 int label_counter = 0;
 
@@ -114,6 +122,25 @@ void gen(Node *node)
       printf("  mov al, 0\n");
       printf("  call %s\n", node -> name);
       printf("  push rax\n");
+      return;
+    }
+
+    case ND_FUNC: {
+      printf("\n  %s:\n", node -> name);
+
+      // prologue
+      printf("  push rbp\n");
+      printf("  mov rbp, rsp\n\n");
+      //printf("  sub rsp, 208\n");
+      for (int i = 0; i < node -> args -> len; ++i)
+        printf("  push %s\n", register_name[i]);
+
+      gen(node -> lhs);
+
+      // epilogue
+      printf("\n  mov rsp, rbp\n");
+      printf("  pop rbp\n");
+      printf("  ret\n");
       return;
     }
 

@@ -13,9 +13,10 @@
  */
 
 // struct
-typedef struct Node  Node;
-typedef struct Token Token;
-typedef struct LVar  LVar;
+typedef struct Node     Node;
+typedef struct Token    Token;
+typedef struct LVar     LVar;
+typedef struct Function Function;
 
 #include "struct.h"
 
@@ -42,7 +43,7 @@ void program();
 void error_at(char *, char *, ...);
 void expect(char *);
 void gen(Node *);
-void regist_lvar(const Token *const, LVar *);
+void regist_lvar(const Token *const, LVar **);
 int expect_number();
 bool consume(const char *);
 bool at_eof();

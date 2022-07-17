@@ -273,42 +273,42 @@ void program()
 }
 
 /*
- * func = ident "(" stmt* ")" "{" stmt* "}"
+ * func = ident "(" stmt* ")" stmt
  */
 Node *func()
 {
   Token *tok = consume_ident();
   if (!tok)
     error_at(token -> str, "not identity");
-  // Function *func;
-  Node *node   = calloc(1, sizeof(Node));
-  node -> kind = ND_BLOCK;
+
+  Node   *node = calloc(1, sizeof(Node));
+  node -> kind = ND_FUNC;
   node -> name = calloc((tok -> len) + 1, sizeof(char));
   memcpy(node -> name, tok -> str, tok -> len);
   node -> name[tok -> len] = '\0';
-  expect("(");
-  Vector *params = new_vec();
-  node -> args = new_vec();
-  while (!consume(")")) {
-    consume(",");
-    Node *arg = expr();
-    vec_push(params, arg);
-    if (node -> args -> len > 6)
-      error_at(token -> str, "number of args for function exceed 6.");
+
+  // arguments of function
+  {
+    expect("(");
+    node -> args = new_vec();
+    while (!consume(")")) {
+      consume(",");
+      Node *arg = expr();
+      vec_push(node -> args, arg);
+      if (node -> args -> len > 6)
+        error_at(token -> str, "number of args for function exceed 6.");
+    }
   }
-  node -> args = params;
-  // expect(")");
-  expect("{");
-  Vector *stmts = new_vec();
-  while (!consume("}"))
-    vec_push(stmts, stmt());
-  node -> stmts = stmts;
+
+  // body of function
+  node -> lhs = stmt();
 
   return node;
 }
 
 /*
  * stmt = expr ";"
+ *      | "{" stmt "}"
  *      | "return" expr ";"
  *      | "if" "(" expr ")" stmt ("else" stmt)?
  *      | "while" "(" expr ")" stmt
@@ -334,8 +334,7 @@ Node *stmt()
     node = calloc(1, sizeof(Node));
     node -> kind = ND_RETURN;
     node -> lhs = expr();
-    if (!consume(";"))
-      error_at(token -> str, "not ';'");
+    expect(";");
   }
   // if statement
   else if (consume(kif)) {
@@ -503,16 +502,16 @@ LVar *find_lvar(Token *tok)
   return NULL;
 }
 
-void regist_lvar(const Token *const tok, LVar *lvar)
+void regist_lvar(const Token *const tok, LVar **lvar)
 {
-  lvar = calloc(1, sizeof(LVar));
+  *lvar = calloc(1, sizeof(LVar));
 
-  lvar -> next   = local_var;
-  lvar -> name   = tok -> str;
-  lvar -> len    = tok -> len;
-  lvar -> offset = (local_var) ? local_var -> offset + 8 : 0;
+  (*lvar) -> next   = local_var;
+  (*lvar) -> name   = tok -> str;
+  (*lvar) -> len    = tok -> len;
+  (*lvar) -> offset = (local_var) ? local_var -> offset + 8 : 8;
 
-  local_var = lvar;
+  local_var = *lvar;
 }
 
 /*
@@ -528,6 +527,7 @@ Node *primary()
   }
 
   Token *tok = consume_ident();
+
   // number
   if (!tok)
     return new_node_number(expect_number());
@@ -541,7 +541,7 @@ Node *primary()
     if (lvar)
       node -> offset = lvar -> offset;
     else {
-      regist_lvar(tok, lvar);
+      regist_lvar(tok, &lvar);
       node -> offset = local_var -> offset;
     }
     return node;
@@ -551,7 +551,8 @@ Node *primary()
   {
     Node *node   = calloc(1, sizeof(Node));
     node -> kind = ND_FUNC_CALL;
-    node -> name = tok -> str;
+    node -> name = calloc((tok -> len) + 1, sizeof(char));
+    memcpy(node -> name, tok -> str, tok -> len);
     node -> name[tok -> len] = '\0';
     node -> args = new_vec();
 

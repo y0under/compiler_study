@@ -23,7 +23,7 @@ void vec_push(Vector *v, void *elem)
 void *vec_pop(Vector *v)
 {
   assert(v -> len);
-  return v -> data[--v -> len];
+  return v -> data[--(v -> len)];
 }
 
 void *vector_last(Vector *v)
