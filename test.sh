@@ -29,6 +29,7 @@ assert 6 "main(){return hoge(1, 2, 3);} hoge(a, b, c){return a + b + c;}"
 assert 4 "main(){return hoge(1, 2, 3);} hoge(a, b, c){return a + c;}"
 assert 1 "main(){return hoge(1, 2, 3);} hoge(a, b, c){return a;}"
 assert 55 "main(){return sum(10);} sum(n){if(n<0) return 0; return n + sum(n-1);}"
+assert 3 "main(){x = 3; y = 5; z = &y + 8; return *z;}"
 #assert 3 "hoge(){return 3;} main(){return hoge();}"
 #assert 27 a=20+5-4\;b=2*3\;a+b\;
 #assert 27 'a=20+5-4;b=2*3;a+b;'

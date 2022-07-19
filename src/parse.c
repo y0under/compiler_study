@@ -16,59 +16,6 @@ const char *kfor         = "for";
 const char *kbrace_left  = "{";
 const char *kbrace_right = "}";
 
-/*
- * make node of operation
- */
-Node *new_node_operation(NodeKind kind, Node *lhs, Node *rhs)
-{
-  Node *node   = calloc(1, sizeof(Node));
-  node -> kind = kind;
-  node -> lhs  = lhs;
-  node -> rhs  = rhs;
-  return node;
-}
-
-/*
- * make node of number
- */
-Node *new_node_number(int val)
-{
-  Node *node = calloc(1, sizeof(Node));
-  node -> kind = ND_NUM;
-  node -> val  = val;
-  return node;
-}
-
-/*
- * what: determin if it is a reserved token
- */
-bool consume(const char *op)
-{
-  if ((token -> kind != TK_RESERVED
-      && token -> kind != TK_RETURN
-      && token -> kind != TK_IF
-      && token -> kind != TK_ELSE
-      && token -> kind != TK_WHILE
-      && token -> kind != TK_FOR)
-      || strlen(op) != token -> len
-      || memcmp(token -> str, op, token -> len))
-    return false;
-  token = token -> next;
-  return true;
-}
-
-/*
- * if op is ident, return pointer
- */
-Token *consume_ident()
-{
-  if (token -> kind != TK_IDENT)
-    return NULL;
-  Token *ident_token = token;
-  token = token -> next;
-  return ident_token;
-}
-
 bool is_expect_token(char *expect_token)
 {
   return !memcmp(token -> str, expect_token, token -> len);
@@ -141,15 +88,15 @@ bool is_tk_reserved(const char *p)
       || *p == '<' || *p == '>'
       || *p == ';' || *p == '='
       || *p == '{' || *p == '}'
-      || *p == ',';
+      || *p == ',' || *p == '&';
 }
 
 bool is_two_char_operation(const char *p)
 {
   return start_swith(p, "==")
-    || start_swith(p, "!=")
-    || start_swith(p, "<=")
-    || start_swith(p, ">=");
+      || start_swith(p, "!=")
+      || start_swith(p, "<=")
+      || start_swith(p, ">=");
 }
 
 Token *tokenize()
@@ -255,6 +202,59 @@ Token *tokenize()
 
   new_token(TK_EOF, cur, p, 0);
   return head.next;
+}
+
+/*
+ * what: determin if it is a reserved token
+ */
+bool consume(const char *op)
+{
+  if ((token -> kind != TK_RESERVED
+      && token -> kind != TK_RETURN
+      && token -> kind != TK_IF
+      && token -> kind != TK_ELSE
+      && token -> kind != TK_WHILE
+      && token -> kind != TK_FOR)
+      || strlen(op) != token -> len
+      || memcmp(token -> str, op, token -> len))
+    return false;
+  token = token -> next;
+  return true;
+}
+
+/*
+ * if op is ident, return pointer
+ */
+Token *consume_ident()
+{
+  if (token -> kind != TK_IDENT)
+    return NULL;
+  Token *ident_token = token;
+  token = token -> next;
+  return ident_token;
+}
+
+/*
+ * make node of operation
+ */
+Node *new_node_operation(NodeKind kind, Node *lhs, Node *rhs)
+{
+  Node *node   = calloc(1, sizeof(Node));
+  node -> kind = kind;
+  node -> lhs  = lhs;
+  node -> rhs  = rhs;
+  return node;
+}
+
+/*
+ * make node of number
+ */
+Node *new_node_number(int val)
+{
+  Node *node = calloc(1, sizeof(Node));
+  node -> kind = ND_NUM;
+  node -> val  = val;
+  return node;
 }
 
 // the head of the definition of the EBNF
@@ -478,6 +478,7 @@ Node *mul()
 
 /*
  * unary = ("+" | "-")? primary
+ *       | ("*" | "&") unary
  */
 Node *unary()
 {
@@ -486,6 +487,10 @@ Node *unary()
   if (consume("-"))
     // replace "-x" to "0-x"
     return new_node_operation(ND_SUB, new_node_number(0), primary());
+  if (consume("*"))
+    return new_node_operation(ND_DEREF, unary(), NULL);
+  if (consume("&"))
+    return new_node_operation(ND_ADDR, unary(), NULL);
   return primary();
 }
 

@@ -38,6 +38,8 @@ typedef enum
   ND_BLOCK,     // {}
   ND_FUNC_CALL, // function call
   ND_FUNC,      // definition of function
+  ND_ADDR,      // address of variable
+  ND_DEREF,     // dereference
 } NodeKind;
 
 #endif

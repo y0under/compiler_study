@@ -122,6 +122,7 @@ void gen(Node *node)
       printf("  mov al, 0\n");
       printf("  call %s\n", node -> name);
       printf("  push rax\n");
+
       return;
     }
 
@@ -141,6 +142,20 @@ void gen(Node *node)
       printf("\n  mov rsp, rbp\n");
       printf("  pop rbp\n");
       printf("  ret\n");
+
+      return;
+    }
+
+    case ND_ADDR: {
+      gen_lval(node -> lhs);
+      return;
+    }
+
+    case ND_DEREF: {
+      gen(node -> lhs);
+      printf("  pop rax\n");
+      printf("  mov rax, [rax]\n");
+      printf("  push rax\n");
       return;
     }
 
