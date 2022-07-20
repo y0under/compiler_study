@@ -14,6 +14,7 @@ typedef enum
   TK_ELSE,     // else statement
   TK_WHILE,    // while statement
   TK_FOR,      // for statement
+  TK_INT,      // type int
 } TokenKind;
 
 typedef enum
@@ -40,6 +41,7 @@ typedef enum
   ND_FUNC,      // definition of function
   ND_ADDR,      // address of variable
   ND_DEREF,     // dereference
+  ND_TYPE,      // type of variable or function
 } NodeKind;
 
 #endif

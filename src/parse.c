@@ -16,6 +16,8 @@ const char *kfor         = "for";
 const char *kbrace_left  = "{";
 const char *kbrace_right = "}";
 
+const char *kint = "int";
+
 bool is_expect_token(char *expect_token)
 {
   return !memcmp(token -> str, expect_token, token -> len);
@@ -123,6 +125,17 @@ Token *tokenize()
       continue;
     }
 
+    // type int
+    {
+      size_t key_length = strlen(kint);
+      if (is_reserved_keyword(p, kint, key_length)) {
+        cur = new_token(TK_INT, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+        continue;
+      }
+    }
+
     // return
     {
       size_t key_length = strlen(kreturn);
@@ -214,7 +227,8 @@ bool consume(const char *op)
       && token -> kind != TK_IF
       && token -> kind != TK_ELSE
       && token -> kind != TK_WHILE
-      && token -> kind != TK_FOR)
+      && token -> kind != TK_FOR
+      && token -> kind != TK_INT)
       || strlen(op) != token -> len
       || memcmp(token -> str, op, token -> len))
     return false;
@@ -277,6 +291,8 @@ void program()
  */
 Node *func()
 {
+  if (!consume("int"))
+    error_at(token -> str, "not int");
   Token *tok = consume_ident();
   if (!tok)
     error_at(token -> str, "not identity");
@@ -531,48 +547,56 @@ Node *primary()
     return node;
   }
 
+  // number or registed variable
+  if (!consume("int")) {
+    Token *tok = consume_ident();
+    // number
+    if (!tok)
+      return new_node_number(expect_number());
+
+    if (!consume("(")) {
+      LVar *lvar = find_lvar(tok);
+      // not registed lvalue
+      if (!lvar)
+        error_at(token -> str, "undefined symnbol.");
+      // registed lvalue
+      Node *node     = calloc(1, sizeof(Node));
+      node -> kind   = ND_LVAL;
+      node -> offset = lvar -> offset;
+      return node;
+    }
+    // call function
+    else {
+      Node *node   = calloc(1, sizeof(Node));
+      node -> kind = ND_FUNC_CALL;
+      node -> name = calloc((tok -> len) + 1, sizeof(char));
+      memcpy(node -> name, tok -> str, tok -> len);
+      node -> name[tok -> len] = '\0';
+      node -> args = new_vec();
+
+      while (!consume(")")) {
+        consume(",");
+        Node *arg = expr();
+        vec_push(node -> args, arg);
+        if (node -> args -> len > 6)
+          error_at(token -> str, "number of args for function exceed 6.");
+      }
+      return node;
+    }
+  }
+
   Token *tok = consume_ident();
 
-  // number
-  if (!tok)
-    return new_node_number(expect_number());
+  // new variable
+  LVar *lvar = find_lvar(tok);
+  if (lvar)
+    error_at(token -> str, "redecared variable");
+  regist_lvar(tok, &lvar);
 
-  // variable
-  if (!consume("(")) {
-    Node *node   = calloc(1, sizeof(Node));
-    node -> kind = ND_LVAL;
-
-    LVar *lvar = find_lvar(tok);
-    if (lvar)
-      node -> offset = lvar -> offset;
-    else {
-      regist_lvar(tok, &lvar);
-      node -> offset = local_var -> offset;
-    }
-    return node;
-  }
-
-  // call function
-  {
-    Node *node   = calloc(1, sizeof(Node));
-    node -> kind = ND_FUNC_CALL;
-    node -> name = calloc((tok -> len) + 1, sizeof(char));
-    memcpy(node -> name, tok -> str, tok -> len);
-    node -> name[tok -> len] = '\0';
-    node -> args = new_vec();
-
-    while (!consume(")")) {
-      consume(",");
-      Node *arg = expr();
-      vec_push(node -> args, arg);
-      if (node -> args -> len > 6)
-        error_at(token -> str, "number of args for function exceed 6.");
-    }
-    return node;
-  }
-
-  error_at("error:", "failed primary");
-  return NULL; // dummy
+  Node *node     = calloc(1, sizeof(Node));
+  node -> offset = local_var -> offset;
+  node -> kind   = ND_LVAL;
+  return node;
 }
 
 // the end of the definition of the EBNF
