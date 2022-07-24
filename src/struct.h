@@ -1,6 +1,12 @@
 #ifndef COMPILER_SRC_H
 #define COMPILER_SRC_H
 
+struct Type
+{
+  enum {INT, PTR} ty;
+  struct Type *ptr_to;
+};
+
 struct Token
 {
   TokenKind kind;  // type of token
@@ -26,6 +32,7 @@ struct Node
   char *name;      // function name
   int val;         // only kind type is ND_NUM
   int offset;      // only kind type is ND_LVAL 
+  Type ty;
 };
 
 struct LVar

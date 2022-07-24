@@ -16,7 +16,8 @@ assert() {
   fi
 }
 
-# assert 0 "int main(){int a; int a; return 0;}"
+#assert 1 "int main(){int a; a = 5; int *b = &b; return *b - 4;}"
+assert 7 "int main(){int a = 0; int b = 7; return b;}"
 assert 0 "int main(){return 0;}"
 assert 2 "int main(){return 2;}"
 assert 5 "int main(){int a = 2; int b = 3; return a + b;}"

@@ -17,6 +17,7 @@ typedef struct Node     Node;
 typedef struct Token    Token;
 typedef struct LVar     LVar;
 typedef struct Function Function;
+typedef struct Type     Type;
 
 #include "struct.h"
 

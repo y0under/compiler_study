@@ -41,7 +41,6 @@ typedef enum
   ND_FUNC,      // definition of function
   ND_ADDR,      // address of variable
   ND_DEREF,     // dereference
-  ND_TYPE,      // type of variable or function
 } NodeKind;
 
 #endif

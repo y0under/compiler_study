@@ -16,7 +16,8 @@ const char *kfor         = "for";
 const char *kbrace_left  = "{";
 const char *kbrace_right = "}";
 
-const char *kint = "int";
+const char *kint  = "int";
+const char *kchar = "char";
 
 bool is_expect_token(char *expect_token)
 {
@@ -136,6 +137,17 @@ Token *tokenize()
       }
     }
 
+    // type char
+    /*{
+      size_t key_length = strlen(kchar);
+      if (is_reserved_keyword(p, kchar, key_length)) {
+        cur = new_token(TK_CHAR, cur, p, key_length);
+        p += key_length;
+        cur -> len = key_length;
+        continue;
+      }
+    } */
+
     // return
     {
       size_t key_length = strlen(kreturn);
@@ -237,7 +249,7 @@ bool consume(const char *op)
 }
 
 /*
- * if op is ident, return pointer
+ * if token -> kind is ident, return pointer
  */
 Token *consume_ident()
 {
@@ -246,6 +258,42 @@ Token *consume_ident()
   Token *ident_token = token;
   token = token -> next;
   return ident_token;
+}
+
+/*
+ * make list for variable of ptr
+ */
+void make_ptr(Type **type)
+{
+  while (consume("*")) {
+    Type *ty     = calloc(1, sizeof(Type));
+    ty -> ty     = PTR;
+    ty -> ptr_to = *type;
+    *type = ty;
+  }
+}
+
+/*
+ * if token is type, return kind of type
+ */
+Type *consume_type()
+{
+  Type *type;
+  switch (token -> kind) {
+    case TK_INT:
+      type = calloc(1, sizeof(Type));
+
+      type -> ty     = INT;
+      type -> ptr_to = NULL;
+
+      token = token -> next;
+      make_ptr(&type);
+      break;
+    default:
+      return NULL;
+  }
+
+  return type;
 }
 
 /*
@@ -530,13 +578,21 @@ void regist_lvar(const Token *const tok, LVar **lvar)
   (*lvar) -> next   = local_var;
   (*lvar) -> name   = tok -> str;
   (*lvar) -> len    = tok -> len;
-  (*lvar) -> offset = (local_var) ? local_var -> offset + 8 : 8;
+  (*lvar) -> offset = (local_var) ? local_var -> offset + 1 : 1;
 
   local_var = *lvar;
 }
 
+int calc_offset_weight(const int type_val)
+{
+  switch (type_val) {
+    case INT:
+      return 8;
+  }
+}
+
 /*
- * primary = num | ident | "(" expr ")"
+ * primary = num | ("int" | "char")? "*"* ident | "(" expr ")"
  */ 
 Node *primary()
 {
@@ -547,56 +603,61 @@ Node *primary()
     return node;
   }
 
-  // number or registed variable
-  if (!consume("int")) {
+  Type *type = consume_type();
+
+  // new variable
+  if (type) {
     Token *tok = consume_ident();
-    // number
-    if (!tok)
-      return new_node_number(expect_number());
+    LVar *lvar = find_lvar(tok);
+    if (lvar)
+      error_at(token -> str, "redecared variable");
+    regist_lvar(tok, &lvar);
 
-    if (!consume("(")) {
-      LVar *lvar = find_lvar(tok);
-      // not registed lvalue
-      if (!lvar)
-        error_at(token -> str, "undefined symnbol.");
-      // registed lvalue
-      Node *node     = calloc(1, sizeof(Node));
-      node -> kind   = ND_LVAL;
-      node -> offset = lvar -> offset;
-      return node;
-    }
-    // call function
-    else {
-      Node *node   = calloc(1, sizeof(Node));
-      node -> kind = ND_FUNC_CALL;
-      node -> name = calloc((tok -> len) + 1, sizeof(char));
-      memcpy(node -> name, tok -> str, tok -> len);
-      node -> name[tok -> len] = '\0';
-      node -> args = new_vec();
+    int offset_weight = calc_offset_weight(type -> ty);
+    (local_var -> offset) *= offset_weight;
 
-      while (!consume(")")) {
-        consume(",");
-        Node *arg = expr();
-        vec_push(node -> args, arg);
-        if (node -> args -> len > 6)
-          error_at(token -> str, "number of args for function exceed 6.");
-      }
-      return node;
-    }
+    Node *node     = calloc(1, sizeof(Node));
+    node -> offset = local_var -> offset;
+    node -> kind   = ND_LVAL;
+    return node;
   }
 
   Token *tok = consume_ident();
 
-  // new variable
-  LVar *lvar = find_lvar(tok);
-  if (lvar)
-    error_at(token -> str, "redecared variable");
-  regist_lvar(tok, &lvar);
+  // number
+  if (!tok)
+    return new_node_number(expect_number());
 
-  Node *node     = calloc(1, sizeof(Node));
-  node -> offset = local_var -> offset;
-  node -> kind   = ND_LVAL;
-  return node;
+  // registed variable or call function
+  if (!consume("(")) {
+    LVar *lvar = find_lvar(tok);
+    // not registed lvalue
+    if (!lvar)
+      error_at(token -> str, "undefined symnbol.");
+    // registed lvalue
+    Node *node     = calloc(1, sizeof(Node));
+    node -> kind   = ND_LVAL;
+    node -> offset = lvar -> offset;
+    return node;
+  }
+  // call function
+  else {
+    Node *node   = calloc(1, sizeof(Node));
+    node -> kind = ND_FUNC_CALL;
+    node -> name = calloc((tok -> len) + 1, sizeof(char));
+    memcpy(node -> name, tok -> str, tok -> len);
+    node -> name[tok -> len] = '\0';
+    node -> args = new_vec();
+
+    while (!consume(")")) {
+      consume(",");
+      Node *arg = expr();
+      vec_push(node -> args, arg);
+      if (node -> args -> len > 6)
+        error_at(token -> str, "number of args for function exceed 6.");
+    }
+    return node;
+  }
 }
 
 // the end of the definition of the EBNF
